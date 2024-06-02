@@ -1,16 +1,15 @@
-const port = 3000;
-const socket = io(`http://localhost:${port}`);
+const socket = io("ws://localhost:3000");
 
-const list = document.getElementById('spravy');
-const msgInput = document.getElementById('input');
+const spravy = document.getElementById("spravy");
+const input = document.getElementById("input");
 
-socket.on('chat-message', data => {
-    console.log(data);
+socket.on("message", (text) => {
+    const el = document.createElement("li");
+    el.innerHTML = text;
+    spravy.appendChild(el)
 });
 
-list.addEventListener('submit', event => {
-    event.preventDefault();
-    const msg = msgInput.value;
-    socket.emit('send-chat-message', msg);
-    msgInput.value = '';
-});
+document.getElementById("button").onclick = () => {
+    const text = input.value;
+    socket.emit("message", text);
+}
