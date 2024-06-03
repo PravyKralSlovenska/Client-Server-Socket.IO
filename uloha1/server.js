@@ -1,6 +1,6 @@
-const http = require("http").createServer();
+const http = require("http").createServer(); 
 const io = require('socket.io')(http, {
-    cors: {origin: "*"}
+    cors: {origin: "*",}
 });
 
 io.on("connection", (socket) => {
@@ -8,9 +8,12 @@ io.on("connection", (socket) => {
 
     socket.on("message", (message) => {
         console.log(message);
-        on.emit("message", `typek povedal: ${message}`)
+        io.emit("message", `typek povedal: ${message}`)
     });
 });
 
 const port = 3000;
 http.listen(port, () => console.log(`Server je zapnuty, pocuvam na porte ${port}`));
+
+// http://127.0.0.1:3000/
+// http://localhost:3000/methods: ["GET", "POST"]
