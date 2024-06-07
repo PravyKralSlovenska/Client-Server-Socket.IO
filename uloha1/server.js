@@ -43,7 +43,7 @@ io.on("connection", (socket) => {
             miestnosti.find((miestnost) => miestnost[0] === socket.miestnost)[1] = miestnosti.find((miestnost) => miestnost[0] === socket.miestnost)[1].filter((clovek) => clovek[0] !== socket.meno);
             io.to(socket.miestnost).emit("update_list", miestnosti.find((miestnost) => miestnost[0] === socket.miestnost)[1]);
         } catch (error) {
-            console.log(error)
+            console.log("error")
         }
 
         console.log("typek sa odpojil");

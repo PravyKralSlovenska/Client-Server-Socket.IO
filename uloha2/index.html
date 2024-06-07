@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script defer src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script defer src="user.js"></script>
+    <style>
+        body {
+            background-color: white;
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent body scroll */
+        }
+        #menu, p {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: white;
+            z-index: 1000;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        #menu {
+            top: 40px;
+            display: flex;
+            justify-content: space-around;
+        }
+        #main {
+            display: flex;
+            padding-top: 80px; /* To offset the fixed menu and heading */
+        }
+        #canvasDiv {
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #canvas {
+            border: 2px solid black;
+            cursor: crosshair;
+        }
+        #spravyDiv {
+            max-height: 600px;
+            overflow-y: auto;
+            margin-left: 20px;
+            width: 600px; /* Adjust width as needed */
+            /* border: 1px solid black; */
+            /* background-color: #f9f9f9; */
+            padding: 10px;
+            box-sizing: border-box;
+            scroll-behavior: smooth; /* Enable smooth scrolling */
+        }
+        #informackyDiv {
+            width: 300px;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            right: 0;
+            top: 80px; /* To align with the main content */
+            background-color: white;
+            box-shadow: -4px 0 8px rgba(0, 0, 0, 0.1);
+            height: calc(100% - 80px); /* Fill the remaining height */
+            overflow: hidden; /* Prevent scroll */
+        }
+        #informacky {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        #form {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            padding: 10px;
+            box-sizing: border-box;
+            background-color: white;
+            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+        }
+        svg:hover {
+            border-radius: 2px;
+            background-color: red;
+        }
+        button:hover {
+            background-color: red;
+        }
+        .content {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+        }
+    </style>
+    <title>Document</title>
+</head>
+<body>
+    <p><b>CHAT + CANVAS</b></p>
+
+    <div id="menu">
+        <input id="menoInput" type="text" placeholder="napis tvoje meno" autocomplete="off">
+        <input id="miestnostInput" type="text" placeholder="zadaj miestnost" autocomplete="off">
+        <button id="pripojitButton" type="click">Pripojit</button>
+    </div>
+
+    <div id="main" style="visibility: hidden;">
+        <div class="content">
+            <div id="canvasDiv">
+                <canvas id="canvas" width="600" height="600"></canvas>
+                <div>
+                    <svg id="kruh25" height="50" width="50" xmlns="http://www.w3.org/2000/svg">
+                        <circle r="25" cx="25" cy="25" fill="black"/>
+                    </svg>
+                    <svg id="kruh20" height="50" width="50" xmlns="http://www.w3.org/2000/svg">
+                        <circle r="20" cx="25" cy="25" fill="black"/>
+                    </svg>
+                    <svg id="kruh15" height="50" width="50" xmlns="http://www.w3.org/2000/svg">
+                        <circle r="15" cx="25" cy="25" fill="black"/>
+                    </svg>
+                    <svg id="kruh10" height="50" width="50" xmlns="http://www.w3.org/2000/svg">
+                        <circle r="10" cx="25" cy="25" fill="black"/>
+                    </svg>
+                    <svg id="kruh5" height="50" width="50" xmlns="http://www.w3.org/2000/svg">
+                        <circle r="5" cx="25" cy="25" fill="black"/>
+                    </svg>
+                    <svg id="kruh1" height="50" width="50" xmlns="http://www.w3.org/2000/svg">
+                        <circle r="1" cx="25" cy="25" fill="black"/>
+                    </svg>
+                    <input id="colorPick" type="color" value="#000000">
+                    <button>UNDO</button>
+                    <button id="clearCanvas">CLEAR CANVAS</button>
+                </div>
+            </div>
+
+            <div id="spravyDiv">
+                <ul id="spravy"></ul>
+            </div>
+        </div>
+
+        <div id="informackyDiv">
+            <ul id="informacky">
+                <li>Miestnost: <span id="miesnost">default</span></li>
+                <li>Tvoje meno: <span id="meno">Jozko Vajdicka</span></li>
+                <li>Pocet pripojenych: <span id="pripojeny">1</span></li>
+                <ul id="pripojeni"></ul>
+            </ul>
+        </div>
+    </div>
+
+    <div id="form" style="visibility: hidden">
+        <form id="form" action="">
+            <input id="input" type="text" placeholder="Napis spravu" autocomplete="off" onkeydown="return event.key != 'Enter';">
+            <button id="tlacidlo" type="button">Odoslat</button>
+        </form>
+    </div>
+</body>
+</html>
