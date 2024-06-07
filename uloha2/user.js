@@ -26,8 +26,8 @@ socket.on("update_list", (list) => {
     });
 });
 
-socket.on("get_canvas", () => {
-    socket.emit("update_canvas", context.getImageData(0, 0, canvas.width, canvas.height));
+socket.on("kresba", (data) => {
+    vykresli(data.prevCoord, data.currCoord, data.color, data.size);
 });
 
 socket.on("update-put_canvas", (data) => {
@@ -42,10 +42,6 @@ socket.on("clear_canvas", () => {
 socket.on("undo_canvas", () => {
     console.log("undo platno");
 });
-
-setInterval(() => {
-    socket.emit("update_canvas", context.getImageData(0, 0, canvas.width, canvas.height));
-}, 1500);
 
 // ======================== NEJAKE FUNKCIE NAVYSE ========================
 tlacidlo.addEventListener("click", (event) => {
@@ -84,47 +80,56 @@ document.getElementById("clearCanvas").addEventListener("click", () => {
 });
 
 // ======================== KRESLENIE ========================
-var stroke_log = [] //[[...], ...]
-
-var kreslime = false;
-var coord = {x:0, y:0};
-var velkost = 10;
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
+let kreslime = false;
+let coord = {x:0, y:0};
+let velkost = 10;
 
 function ziskajCoords(event) {
     coord.x = event.clientX - canvas.offsetLeft;
-    coord.y = event.clientY - canvas.offsetTop; 
+    coord.y = event.clientY - canvas.offsetTop;
 }
 
-window.addEventListener('load', () => {
-    document.addEventListener("mousedown", () => {kreslime = true; ziskajCoords(event)});
-    document.addEventListener("mouseup", () => {kreslime = false;});
-    document.addEventListener("mousemove", vykresli);
+canvas.addEventListener("mousedown", (event) => {
+    kreslime = true;
+    ziskajCoords(event);
 });
 
-function vykresli() {
-    if (!kreslime) return; // ked je kreslime false, tak sa vykona return a funkcia skonci :3
-    context.beginPath();
-    context.lineWidth = velkost;
-    context.strokeStyle = document.getElementById("colorPick").value;
-    context.lineCap = "round";
-    context.moveTo(coord.x,coord.y);
-    ziskajCoords(event);
-    context.lineTo(coord.x, coord.y);
-    context.stroke(); // vykresli ciarku
-    context.closePath();
-}
+canvas.addEventListener("mouseup", () => {
+    kreslime = false;
+});
 
-function update_canvas() {
-    return context.getImageData(0, 0, canvas.width, canvas.height);
+canvas.addEventListener("mousemove", (event) => {
+    if (kreslime) {
+        const prevCoord = { ...coord };
+        ziskajCoords(event);
+        const data = {
+            prevCoord,
+            currCoord: coord,
+            color: document.getElementById("colorPick").value,
+            size: velkost
+        };
+        socket.emit("kresba", data);
+        vykresli(prevCoord, coord, data.color, data.size);
+    }
+});
+
+function vykresli(prevCoord, currCoord, color, size) {
+    context.beginPath();
+    context.lineWidth = size;
+    context.strokeStyle = color;
+    context.lineCap = "round";
+    context.moveTo(prevCoord.x, prevCoord.y);
+    context.lineTo(currCoord.x, currCoord.y);
+    context.stroke();
+    context.closePath();
 }
 
 function vymaz_canvas() {
     context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-// zmen farbu pozadia canvasu
 function farba_canvas(farba = "#FFFFFF"){
     context.beginPath();
     context.fillStyle = farba;
@@ -157,4 +162,3 @@ document.getElementById("kruh20").addEventListener("click", () => {
 document.getElementById("kruh25").addEventListener("click", () => {
     velkost = 25;
 });
-
